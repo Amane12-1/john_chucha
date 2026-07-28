@@ -1,10 +1,10 @@
 const GetSMS = require('getsms');
 
-const sms = new GetSMS({
+const sms = new GetSMS(
   key: '177294U15a8640801c39bf11bacebea6d324b6b',
   url: 'https://smshub.org/stubs/handler_api.php',
   service: 'smshub'
-});
+);
 
 const COUNTRY = 6; // Indonesia
 
