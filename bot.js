@@ -62,20 +62,22 @@ async function createAccount() {
 
   console.log('🌐 Loading Google signup page...');
 
+  // 🚀 Changed waitUntil to 'domcontentloaded' to bypass slow network loads on Render
   await page.goto('https://accounts.google.com/signup/v2/createaccount?flowName=GlifWebSignIn&flowEntry=SignUp', {
-    waitUntil: 'networkidle2'
+    waitUntil: 'domcontentloaded'
   });
 
-  console.log('✅ Page loaded! URL:', page.url());
+  console.log('✅ Page structure loaded! Attempting to fill form...');
 
   // Step 1: Name
-  await page.waitForSelector('input[name="firstName"]');
+  // We add a small wait to ensure the elements are interactable
+  await page.waitForSelector('input[name="firstName"]', { timeout: 30000 });
   await page.type('input[name="firstName"]', 'chuchajohn1123');
   await page.type('input[name="lastName"]', 'gmail');
   await page.click('#collectNameNext > div > button > span');
 
   // Step 2: Birthday & Gender
-  await page.waitForSelector('input[name="day"]');
+  await page.waitForSelector('input[name="day"]', { timeout: 30000 });
   await page.type('#day', '01');
   await page.type('#year', '1992');
   await page.evaluate(() => {
@@ -87,12 +89,12 @@ async function createAccount() {
   await page.click('#birthdaygenderNext > div > button > span');
 
   // Step 3: Purpose
-  await page.waitForSelector('#selectionc2');
+  await page.waitForSelector('#selectionc2', { timeout: 30000 });
   await page.click('#selectionc2');
   await page.click('#next > div > button');
 
   // Step 4: Password
-  await page.waitForSelector('#passwd');
+  await page.waitForSelector('#passwd', { timeout: 30000 });
   await page.type('#passwd', '6lxTczLPhtA');
   await page.type('#confirm-passwd', '6lxTczLPhtA');
   await page.click('#createpasswordNext > div > button');
@@ -103,6 +105,7 @@ async function createAccount() {
     console.log('⚠️ CAPTCHA detected - Skipping for now');
   }
 
+  // We wait for the final navigation (which may be slow)
   await page.waitForNavigation({ waitUntil: 'networkidle2' });
   const url = page.url();
   await browser.close();
