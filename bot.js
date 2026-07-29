@@ -3,7 +3,6 @@ const puppeteer = require('puppeteer-extra');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 const AnonymizeUAPlugin = require('puppeteer-extra-plugin-anonymize-ua');
 const AdblockerPlugin = require('puppeteer-extra-plugin-adblocker');
-const { getSMSNumber } = require('./sms.js');
 
 puppeteer.use(StealthPlugin());
 puppeteer.use(AnonymizeUAPlugin());
@@ -77,14 +76,7 @@ async function createAccount() {
   await page.click('#createpasswordNext > div > button');
 
   // Step 5: Phone verification
-  try {
-    console.log('Checking for phone verification...');
-    await page.waitForSelector('#phoneNumberId', { timeout: 5000 });
-    await getSMSNumber(page);
-  } catch (error) {
-    console.log('No phone verification required.');
-  }
-
+  
   // Step 6: CAPTCHA
   if (page.url().includes('recaptcha')) {
     console.log('CAPTCHA detected, waiting...');
