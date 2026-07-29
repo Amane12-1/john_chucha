@@ -27,16 +27,18 @@ bot.start((ctx) => {
 });
 
 bot.command('create', async (ctx) => {
-  const chatId = ctx.chat.id;
-  ctx.reply('⏳ Checking browser... This may take 30 seconds if downloading.');
-
+  // 🟢 We reply IMMEDIATELY to keep the connection alive
+  ctx.reply('⏳ Account creation started! This will take 2-5 minutes. Please wait...');
+  
+  // Run the heavy work in the background
   try {
     await ensureBrowser();
-    ctx.reply('⏳ Starting account creation in the cloud...');
     const result = await createAccount();
-    ctx.reply(`✅ ${result}`);
+    
+    // Send the final result after everything is done
+    await ctx.reply(`✅ ${result}`);
   } catch (err) {
-    ctx.reply(`❌ Error: ${err.message}`);
+    await ctx.reply(`❌ Error: ${err.message}`);
   }
 });
 
@@ -53,7 +55,6 @@ async function createAccount() {
 
   const page = await browser.newPage();
   
-  // 🚀 FORCE DISABLE ALL TIMEOUTS
   await page.setDefaultTimeout(0);
   await page.setDefaultNavigationTimeout(0);
 
@@ -61,8 +62,6 @@ async function createAccount() {
   await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
 
   console.log('🌐 Loading Google signup page...');
-
-  // 🚀 Changed waitUntil to 'domcontentloaded' to bypass slow network loads on Render
   await page.goto('https://accounts.google.com/signup/v2/createaccount?flowName=GlifWebSignIn&flowEntry=SignUp', {
     waitUntil: 'domcontentloaded'
   });
@@ -70,7 +69,6 @@ async function createAccount() {
   console.log('✅ Page structure loaded! Attempting to fill form...');
 
   // Step 1: Name
-  // We add a small wait to ensure the elements are interactable
   await page.waitForSelector('input[name="firstName"]', { timeout: 30000 });
   await page.type('input[name="firstName"]', 'chuchajohn1123');
   await page.type('input[name="lastName"]', 'gmail');
@@ -105,7 +103,6 @@ async function createAccount() {
     console.log('⚠️ CAPTCHA detected - Skipping for now');
   }
 
-  // We wait for the final navigation (which may be slow)
   await page.waitForNavigation({ waitUntil: 'networkidle2' });
   const url = page.url();
   await browser.close();
