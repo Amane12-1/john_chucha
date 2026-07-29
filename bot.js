@@ -12,7 +12,6 @@ puppeteer.use(AdblockerPlugin({ blockTrackers: true }));
 const BOT_TOKEN = '8927511031:AAErc7Zgfkd0Pp9xHoyDxuqr98kpdZMCke8';
 const bot = new Telegraf(BOT_TOKEN);
 
-// 🛠️ Self-Healing: Auto-download Chrome if missing!
 async function ensureBrowser() {
   try {
     console.log('🔄 Checking if Chrome is installed...');
@@ -32,7 +31,7 @@ bot.command('create', async (ctx) => {
   ctx.reply('⏳ Checking browser... This may take 30 seconds if downloading.');
 
   try {
-    await ensureBrowser(); // 🔥 Ensure browser is installed
+    await ensureBrowser();
     ctx.reply('⏳ Starting account creation in the cloud...');
     const result = await createAccount();
     ctx.reply(`✅ ${result}`);
@@ -60,15 +59,15 @@ async function createAccount() {
 
   await page.goto('https://accounts.google.com/signup/v2/createaccount?flowName=GlifWebSignIn&flowEntry=SignUp', {
     waitUntil: 'networkidle2',
-    timeout: 120000
+    timeout: 180000
   });
 
   console.log('✅ Page loaded! URL:', page.url());
 
-  // Step 1: Name
+  // Step 1: Name (Changed to try and get chuchajohn1123@gmail.com)
   await page.waitForSelector('input[name="firstName"]');
-  await page.type('input[name="firstName"]', 'Hand');
-  await page.type('input[name="lastName"]', 'Son');
+  await page.type('input[name="firstName"]', 'chuchajohn1123');
+  await page.type('input[name="lastName"]', 'gmail');
   await page.click('#collectNameNext > div > button > span');
 
   // Step 2: Birthday & Gender
@@ -100,7 +99,7 @@ async function createAccount() {
     console.log('⚠️ CAPTCHA detected - Skipping for now');
   }
 
-  await page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 60000 });
+  await page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 180000 });
   const url = page.url();
   await browser.close();
 
