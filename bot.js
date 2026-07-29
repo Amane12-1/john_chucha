@@ -52,19 +52,23 @@ async function createAccount() {
   });
 
   const page = await browser.newPage();
+  
+  // 🚀 FORCE DISABLE ALL TIMEOUTS
+  await page.setDefaultTimeout(0);
+  await page.setDefaultNavigationTimeout(0);
+
   await page.setViewport({ width: 1920, height: 1080 });
   await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
 
   console.log('🌐 Loading Google signup page...');
 
   await page.goto('https://accounts.google.com/signup/v2/createaccount?flowName=GlifWebSignIn&flowEntry=SignUp', {
-    waitUntil: 'networkidle2',
-    timeout: 180000
+    waitUntil: 'networkidle2'
   });
 
   console.log('✅ Page loaded! URL:', page.url());
 
-  // Step 1: Name (Changed to try and get chuchajohn1123@gmail.com)
+  // Step 1: Name
   await page.waitForSelector('input[name="firstName"]');
   await page.type('input[name="firstName"]', 'chuchajohn1123');
   await page.type('input[name="lastName"]', 'gmail');
@@ -99,7 +103,7 @@ async function createAccount() {
     console.log('⚠️ CAPTCHA detected - Skipping for now');
   }
 
-  await page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 180000 });
+  await page.waitForNavigation({ waitUntil: 'networkidle2' });
   const url = page.url();
   await browser.close();
 
