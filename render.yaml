@@ -1,0 +1,9 @@
+services:
+  - type: web
+    plan: free
+    name: john_chucha
+    runtime: node
+    buildCommand: |
+      npm install
+      npx puppeteer browsers install chrome
+    startCommand: node bot.js
