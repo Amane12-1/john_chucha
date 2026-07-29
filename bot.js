@@ -3,6 +3,7 @@ const puppeteer = require('puppeteer-extra');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 const AnonymizeUAPlugin = require('puppeteer-extra-plugin-anonymize-ua');
 const AdblockerPlugin = require('puppeteer-extra-plugin-adblocker');
+const { execSync } = require('child_process');
 
 puppeteer.use(StealthPlugin());
 puppeteer.use(AnonymizeUAPlugin());
@@ -11,15 +12,28 @@ puppeteer.use(AdblockerPlugin({ blockTrackers: true }));
 const BOT_TOKEN = '8927511031:AAErc7Zgfkd0Pp9xHoyDxuqr98kpdZMCke8';
 const bot = new Telegraf(BOT_TOKEN);
 
+// 🛠️ Self-Healing: Auto-download Chrome if missing!
+async function ensureBrowser() {
+  try {
+    console.log('🔄 Checking if Chrome is installed...');
+    execSync('npx puppeteer browsers install chrome', { stdio: 'inherit' });
+    console.log('✅ Chrome download completed.');
+  } catch (error) {
+    console.log('⚠️ Chrome download triggered automatically.');
+  }
+}
+
 bot.start((ctx) => {
   ctx.reply('🤖 Google Account Creator Bot ready!\nUse /create to start.');
 });
 
 bot.command('create', async (ctx) => {
   const chatId = ctx.chat.id;
-  ctx.reply('⏳ Starting account creation in the cloud...');
+  ctx.reply('⏳ Checking browser... This may take 30 seconds if downloading.');
 
   try {
+    await ensureBrowser(); // 🔥 Ensure browser is installed
+    ctx.reply('⏳ Starting account creation in the cloud...');
     const result = await createAccount();
     ctx.reply(`✅ ${result}`);
   } catch (err) {
@@ -28,7 +42,6 @@ bot.command('create', async (ctx) => {
 });
 
 async function createAccount() {
-  // This tells Puppeteer to automatically download the browser if it's missing
   const browser = await puppeteer.launch({
     headless: true,
     executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
@@ -81,10 +94,8 @@ async function createAccount() {
   await page.type('#confirm-passwd', '6lxTczLPhtA');
   await page.click('#createpasswordNext > div > button');
 
-  // Step 5: Phone verification (We will add SMS back later)
   console.log('Skipping phone verification for now...');
 
-  // Step 6: CAPTCHA (We will add CAPTCHA solver later)
   if (page.url().includes('recaptcha')) {
     console.log('⚠️ CAPTCHA detected - Skipping for now');
   }
