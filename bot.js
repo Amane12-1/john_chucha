@@ -28,10 +28,10 @@ bot.command('create', async (ctx) => {
 });
 
 async function createAccount() {
-  // Render-specific Puppeteer config (uses Chrome-for-Testing)
+  // This tells Puppeteer to automatically download the browser if it's missing
   const browser = await puppeteer.launch({
     headless: true,
-    executablePath: '/opt/render/project/src/node_modules/.bin/chrome-for-testing',
+    executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
     args: [
       '--no-sandbox',
       '--disable-setuid-sandbox',
